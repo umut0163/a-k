@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<title>Sola Hizalı Şiir & Kalpli Kutular</title>
+<style>
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  width: 100%;
+  background: #111;
+  font-family: Arial, sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  color: white;
+}
+
+#container {
+  position: relative;
+  border: 5px solid #e91e63;
+  border-radius: 20px;
+  padding: 40px 60px;
+  max-width: 700px;
+  box-shadow: 0 0 20px #e91e63bb;
+  background: #222;
+  z-index: 1;
+}
+
+#poem {
+  font-size: 24px;
+  line-height: 1.4;
+  white-space: pre-wrap;
+  text-align: left;
+  color: white;
+  min-height: 200px;
+  font-weight: bold;
+}
+
+.corner-box {
+  position: fixed;
+  width: 150px;
+  height: 150px;
+  background: #e91e63;
+  border-radius: 20px;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 80px;
+  color: white;
+  z-index: 100;
+  transition: transform 0.3s ease;
+}
+
+.corner-box:hover {
+  transform: scale(1.1);
+}
+
+.confetti {
+  position: fixed;
+  font-size: 30px;
+  color: white;
+  opacity: 1;
+  pointer-events: none;
+  animation: explode 800ms forwards ease-out;
+  z-index: 90;
+}
+
+@keyframes explode {
+  0% { opacity: 1; transform: translate(0,0) rotate(0deg); }
+  100% { opacity: 0; transform: translate(var(--x), var(--y)) rotate(720deg); }
+}
+</style>
+</head>
+<body>
+
+<div id="container">
+  <div id="poem"></div>
+</div>
+
+<!-- Kutular -->
+<div id="box-topleft" class="corner-box">🎁</div>
+<div id="box-topright" class="corner-box">🎁</div>
+<div id="box-bottomleft" class="corner-box">🎁</div>
+<div id="box-bottomright" class="corner-box">🎁</div>
+
+<script>
+const poemText = `Bahar gibi geldin, gönlümü açtın,
+Ellerim ellerinde huzuru tattım.
+Dertlerim bitti senle tanışınca,
+Rüyalar gerçek oldu aşkınla.
+İçimde sevdanla coşuyor her an,
+Yalnızlık kalmadı, sen varsın yanımda.
+En güzel şarkım senin adında,
+Mutluluk seninle hayatımda.`;
+
+const poemDiv = document.getElementById('poem');
+
+function sleep(ms) { return new Promise(resolve => setTimeout(resolve, ms)); }
+
+async function typeText(text, element, delay = 50) {
+  element.textContent = '';
+  for (let i = 0; i < text.length; i++) {
+    element.textContent += text[i];
+    await sleep(delay);
+  }
+}
+
+typeText(poemText, poemDiv, 50);
+
+function placeBoxes() {
+  const container = document.getElementById('container');
+  const poemBox = container.getBoundingClientRect();
+  const width = window.innerWidth;
+  const height = window.innerHeight;
+
+  function setPosition(boxId, targetX, targetY) {
+    const box = document.getElementById(boxId);
+    box.style.left = `${targetX - 75}px`;
+    box.style.top = `${targetY - 75}px`;
+  }
+
+  setPosition('box-topleft', (poemBox.left) / 2, (poemBox.top) / 2);
+  setPosition('box-topright', (poemBox.right + width) / 2, (poemBox.top) / 2);
+  setPosition('box-bottomleft', (poemBox.left) / 2, (poemBox.bottom + height) / 2);
+  setPosition('box-bottomright', (poemBox.right + width) / 2, (poemBox.bottom + height) / 2);
+}
+
+function createConfetti(x, y) {
+  for(let i = 0; i < 20; i++) {
+    const confetti = document.createElement('div');
+    confetti.classList.add('confetti');
+    confetti.textContent = "🤍";
+    confetti.style.left = x + 'px';
+    confetti.style.top = y + 'px';
+    const dx = (Math.random() - 0.5) * 400 + 'px';
+    const dy = (Math.random() - 0.5) * 400 + 'px';
+    confetti.style.setProperty('--x', dx);
+    confetti.style.setProperty('--y', dy);
+    document.body.appendChild(confetti);
+    setTimeout(() => confetti.remove(), 800);
+  }
+}
+
+document.querySelectorAll('.corner-box').forEach(box => {
+  box.addEventListener('click', (e) => {
+    const rect = box.getBoundingClientRect();
+    const x = rect.left + rect.width / 2;
+    const y = rect.top + rect.height / 2;
+    createConfetti(x, y);
+    box.style.visibility = 'hidden';
+  });
+});
+
+window.addEventListener('resize', placeBoxes);
+window.addEventListener('load', placeBoxes);
+</script>
+
+</body>
+</html>
